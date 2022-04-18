@@ -1,0 +1,73 @@
+############## SET WINDOW SIZE ##############
+#############################################
+Function Set-WindowSize {
+Param([int]$x=$host.ui.rawui.windowsize.width,
+      [int]$y=$host.ui.rawui.windowsize.heigth)
+
+    $size=New-Object System.Management.Automation.Host.Size($x,$y)
+    $host.ui.rawui.WindowSize=$size   
+}
+Set-WindowSize 115 40
+############## SET WINDOW SIZE ##############
+#############################################
+
+
+
+
+
+############# SET COLOR OUTPUT ##############
+#############################################
+function Write-ColorOutput($ForegroundColor)
+{
+    # save the current color
+    $fc = $host.UI.RawUI.ForegroundColor
+
+    # set the new color
+    $host.UI.RawUI.ForegroundColor = $ForegroundColor
+
+    # output
+    if ($args) {
+        Write-Output $args
+    }
+    else {
+        $input | Write-Output
+    }
+
+    # restore the original color
+    $host.UI.RawUI.ForegroundColor = $fc
+}
+############# SET COLOR OUTPUT ##############
+#############################################
+
+
+
+
+
+Do {
+CLS
+Write-Host "===================================================================================================================
+===================================================================================================================
+
+                                                USERNAME SEARCH
+
+===================================================================================================================
+==================================================================================================================="
+Write-Host "Green = enabled account" -ForegroundColor Green
+Write-Host "Red = disabled account
+" -ForegroundColor Red
+
+
+
+
+Write-Host "Type in the user's name. If you don't know the full name type in as much correct information as you can.
+For instance, if you are searching for John Smith, you can enter John S to search for that user:
+________________________________________________________________________________________________"
+$ADUser = Read-Host
+Get-ADUser -Filter "DisplayName -like '*$ADUser*'" -Properties * | Where { $_.Enabled -eq $True} | select SamAccountName, GivenName, SurName, TelephoneNumber, EmailAddress, Title | Sort-Object SurName | Format-Table -AutoSize | Write-ColorOutput green
+Get-ADUser -Filter "DisplayName -like '*$ADUser*'" -Properties * | Where { $_.Enabled -eq $False} | select SamAccountName, GivenName, SurName, TelephoneNumber, EmailAddress, Title | Sort-Object SurName | Format-Table -AutoSize | Write-ColorOutput red
+Start-Sleep -Seconds 1
+Read-Host "Press Enter to restart script."
+
+
+}
+Until ($ADUser -eq "=-#")
